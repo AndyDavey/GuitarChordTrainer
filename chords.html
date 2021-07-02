@@ -1,0 +1,124 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Chords</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        nav {border-bottom: 1px solid #000; padding-bottom: 1em; margin-bottom: 1em}
+        #speedSlider {width: 50%}
+        #chordPatterns {padding-left: 0}
+        #chordPatterns li {display: inline-block; margin-right: 1em}
+        #chord {font-size: 30em; font-family: consolas}
+    </style>
+</head>
+<body>
+    <nav>
+        <div>Faster  <input type="range" min="250" max="2000" step="250" id="speedSlider"> Slower</div>
+        <div><ul id="chordPatterns"></ul></div>
+        <div><button id="buttonGo">Go</button><button id="buttonStop">Stop</button></div>
+    </nav>
+
+    <main>
+        <div id="chord"></div>
+    </main>
+
+    <script>
+        var page = {
+            speed: 750,
+            started: false,
+            chords: {
+                major: {name: "Major", chords: ["A","B","C","D","E","F","G"] },
+                minor: {name: "Minor", chords: ["A&#9837;","B&#9837;","D&#9837;","E&#9837;","G&#9837;"] },
+                sharp: {name: "Sharp", chords: ["A#","C#","D#","F#","G#"] },
+                majorMinor: {name: "Major + Minor", chords: [] },
+                majorSharp: {name: "Major + Sharp", chords: [] },
+                minorSharp: {name: "Minor + Sharp", chords: [] },
+                all: {name: "All", chords: [] },
+            }
+        };
+
+        var speedSlider = document.getElementById("speedSlider"),
+            chord = document.getElementById("chord"),
+            buttonGo = document.getElementById("buttonGo"),
+            buttonStop = document.getElementById("buttonStop"),
+            chordPatterns = document.getElementById("chordPatterns"),
+            act, sequence, checkboxes = "";
+
+        page.chords.majorMinor.chords = page.chords.major.chords.concat(page.chords.minor.chords);
+        page.chords.majorSharp.chords = page.chords.major.chords.concat(page.chords.sharp.chords);
+        page.chords.minorSharp.chords = page.chords.minor.chords.concat(page.chords.sharp.chords);
+        page.chords.all.chords = page.chords.majorMinor.chords.concat(page.chords.sharp.chords);
+
+        speedSlider.setAttribute("value", page.speed);
+
+        function showRandomChord() {
+            var min = 0;
+            var max = sequence.length-1;
+            Math.floor();
+            var random = Math.floor(Math.random() * (max - min + 1) + min);
+            chord.innerHTML = sequence[random];
+        }
+
+        speedSlider.oninput = function() {
+            page.speed = this.value;
+
+            if(page.started)
+            {
+                buttonStop.click();
+                buttonGo.click();
+            }
+        }
+
+        buttonStop.onclick = function() {
+            clearInterval(act);
+            buttonStop.setAttribute("disabled", true);
+            buttonGo.removeAttribute("disabled");
+        };
+
+        buttonGo.onclick = function () {
+            var inputs = chordPatterns.getElementsByTagName("input"), foundSequence;
+            for (var i = 0, len = inputs.length; i < len; i++) {
+                if (inputs[i].checked) {
+                    foundSequence = inputs[i].value;
+                    break;
+                }
+            }
+
+            switch (foundSequence) {
+                case "major":
+                    sequence = page.chords.major.chords;
+                    break;
+                case "minor":
+                    sequence = page.chords.minor.chords;
+                    break;
+                case "sharp":
+                    sequence = page.chords.sharp.chords;
+                    break;
+                case "majorMinor":
+                    sequence = page.chords.majorMinor.chords;
+                    break;
+                case "minorSharp":
+                    sequence = page.chords.majorSharp.chords;
+                    break;
+                case "all":
+                    sequence = page.chords.all.chords;
+                    break;
+                default:
+                // code block
+            }
+
+            page.started = true;
+            buttonStop.removeAttribute("disabled");
+            buttonGo.setAttribute("disabled", true);
+            act = setInterval(showRandomChord, page.speed);
+        };
+
+        for (const [key, value] of Object.entries(page.chords)){
+            checkboxes += "<li>" + value.name + "<input type='radio' value='" + key + "' name='chords'"
+            if(key=="majorMinor") checkboxes += " checked"
+            checkboxes += " /></li>";
+        }
+        chordPatterns.innerHTML = checkboxes;
+    </script>
+</body>
+</html>
